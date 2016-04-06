@@ -1,13 +1,20 @@
 package com.example.anandundavia.heatbeattracker;
 
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.system.Os;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +29,9 @@ public class FirstTime extends Fragment
     private static final int PICK_EM1 = 1;
     private static final int PICK_EM2 = 2;
     private static final int PICK_DOC = 3;
+    final private int REQUEST_CODE_ASK_PERMISSIONS_CONTACTS = 110;
+    private static int x_global=1;
+
 
     private View rootView;
 
@@ -106,8 +116,46 @@ public class FirstTime extends Fragment
         @Override
         public void onClick(View v)
         {
+            x_global = x;
+
+            if(Build.VERSION.SDK_INT<23)
+                selectContact();
+            else
+                checkPermissions();          //for marshmallow and above versions
+        }
+
+        @TargetApi(23)
+        private void checkPermissions() {
+
+            if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS},REQUEST_CODE_ASK_PERMISSIONS_CONTACTS);
+            }
+            else{
+                selectContact();
+            }
+
+        }
+
+        public void selectContact(){
             Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
             startActivityForResult(intent, x);
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length == 1 && requestCode == REQUEST_CODE_ASK_PERMISSIONS_CONTACTS && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            MyContactPicker my = new MyContactPicker(x_global);
+            my.selectContact();
+
+        }
+        else{
+
+            Toast.makeText(getContext(), "Permissions Denied | Quitting", Toast.LENGTH_SHORT).show();
+            getActivity().finish();
+
         }
     }
 
