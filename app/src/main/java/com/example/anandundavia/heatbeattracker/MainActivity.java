@@ -1,14 +1,30 @@
 package com.example.anandundavia.heatbeattracker;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
 {
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            String message = intent.getStringExtra(RandomDataGen.KEY);
+            Log.e(RandomDataGen.KEY, "Got message: " + message);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -16,6 +32,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Database.LOCALDB = new Database(this);
+        new Thread(new RandomDataGen(this)).start();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(RandomDataGen.DATA_BROADCAST));
         if (!Database.LOCALDB.isUserRegistered())
         {
             FragmentManager fm = getSupportFragmentManager();
