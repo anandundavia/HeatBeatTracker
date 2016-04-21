@@ -115,5 +115,15 @@ public class Database
         return c.getString(0);
     }
 
+    void setSoftLimitFor(String mode, String lim)
+    {
+        String q = "UPDATE " + VALUES_TABLE + " SET " + SOFT_LIMIT + " = '" + lim + "' WHERE " + MODE + " = '" + mode + "'";
+        db.execSQL(q);
+    }
 
+    void setHardLimitFor(String mode, String lim)
+    {
+        String q = "UPDATE " + VALUES_TABLE + " SET " + HARD_LIMIT + " = '" + lim + "' WHERE " + MODE + " = '" + mode + "'";
+        db.execSQL(q);
+    }
 }
