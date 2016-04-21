@@ -9,23 +9,24 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public class Database
 {
+    public static final String MODES[] = {"Normal", "Running", "Sleeping"};
     private static final String DATABASE_NAME = "MasterDB";
-
     private static final String USER_TABLE = "User";
     private static final String USER_NAME = "Name";
-
     private static final String CONTACTS_TABLE = "Contacts";
     private static final String CONTACT_NAME = "ContactName";
     private static final String CONTACT_NUMNBER = "ContactNumber";
-
+    private static final String VALUES_TABLE = "ModeValues";
+    private static final String MODE = "Mode";
+    private static final String SOFT_LIMIT = "SoftLimit";
+    private static final String HARD_LIMIT = "HardLimit";
+    private static final String MESSAGE = "Message";
     private static final String CREATE_USER_TABLE = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + USER_NAME + " TEXT)";
     private static final String CREATE_CONTACTS_TABLE = "CREATE TABLE IF NOT EXISTS " + CONTACTS_TABLE + " (" + CONTACT_NAME + " TEXT," + CONTACT_NUMNBER + " TEXT)";
-
-    Context localContext;
-
-    SQLiteDatabase db = null;
-
+    private static final String CREATE_VALUES_TABLE = "CREATE TABLE IF NOT EXISTS " + VALUES_TABLE + " (" + MODE + " TEXT, " + SOFT_LIMIT + " TEXT, " + HARD_LIMIT + " TEXT ," + MESSAGE + " TEXT)";
     public static Database LOCALDB = null;
+    Context localContext;
+    SQLiteDatabase db = null;
 
     public Database(Context ct)
     {
@@ -33,6 +34,8 @@ public class Database
         db = localContext.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
         db.execSQL(CREATE_USER_TABLE);
         db.execSQL(CREATE_CONTACTS_TABLE);
+        db.execSQL(CREATE_VALUES_TABLE);
+        setInitialLimits();
     }
 
     void insertName(String name)
@@ -61,4 +64,56 @@ public class Database
         c.close();
         return returnThis;
     }
+
+    boolean isUserRegistered()
+    {
+        String q = "SELECT " + USER_NAME + " FROM " + USER_TABLE;
+        Cursor c = db.rawQuery(q, null);
+        c.moveToFirst();
+        return c.getCount() > 0;
+    }
+
+    int getSoftLimitFor(String mode)
+    {
+        String q = "SELECT " + SOFT_LIMIT + " FROM " + VALUES_TABLE + " WHERE " + MODE + " = '" + mode + "'";
+        Cursor c = db.rawQuery(q, null);
+        c.moveToFirst();
+        return Integer.parseInt(c.getString(0));
+    }
+
+    int getHardLimitFor(String mode)
+    {
+        String q = "SELECT " + HARD_LIMIT + " FROM " + VALUES_TABLE + " WHERE " + MODE + " = '" + mode + "'";
+        Cursor c = db.rawQuery(q, null);
+        c.moveToFirst();
+        return Integer.parseInt(c.getString(0));
+    }
+
+    String getMessageFor(String mode)
+    {
+        String q = "SELECT " + MESSAGE + " FROM " + VALUES_TABLE + " WHERE " + MODE + " = '" + mode + "'";
+        Cursor c = db.rawQuery(q, null);
+        c.moveToFirst();
+        return c.getString(0);
+    }
+
+    void setInitialLimits()
+    {
+        String q = "INSERT INTO " + VALUES_TABLE + " VALUES ('" + MODES[0] + "','50','70','This is the message')";
+        db.execSQL(q);
+        q = "INSERT INTO " + VALUES_TABLE + " VALUES ('" + MODES[1] + "','60','90','This is the message')";
+        db.execSQL(q);
+        q = "INSERT INTO " + VALUES_TABLE + " VALUES ('" + MODES[2] + "','45','60','This is the message')";
+        db.execSQL(q);
+    }
+
+    String getName()
+    {
+        String q = "SELECT " + USER_NAME + " FROM " + USER_TABLE;
+        Cursor c = db.rawQuery(q, null);
+        c.moveToFirst();
+        return c.getString(0);
+    }
+
+
 }
