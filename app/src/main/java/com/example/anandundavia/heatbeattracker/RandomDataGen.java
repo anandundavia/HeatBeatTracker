@@ -14,7 +14,7 @@ public class RandomDataGen implements Runnable
 {
     public static final String DATA_BROADCAST = "databr";
     public static final String KEY = "key";
-    public Context localContext;
+    private Context localContext;
 
     RandomDataGen(Context x)
     {

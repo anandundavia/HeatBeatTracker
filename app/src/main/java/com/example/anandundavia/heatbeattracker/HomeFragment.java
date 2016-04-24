@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -35,7 +34,7 @@ public class HomeFragment extends Fragment
             Toast.makeText(getActivity(),"Got BPM : "+message,Toast.LENGTH_SHORT).show();
             */
 
-            int soft = Database.LOCALDB.getSoftLimitFor(CURRENT_SELECTED_MODE);
+            /*int soft = Database.LOCALDB.getSoftLimitFor(CURRENT_SELECTED_MODE);
             int hard = Database.LOCALDB.getHardLimitFor(CURRENT_SELECTED_MODE);
             int received = Integer.parseInt(message);
             if (received < soft || received > hard)
@@ -43,7 +42,7 @@ public class HomeFragment extends Fragment
                 String numbers[] = Database.LOCALDB.getAllNumbers();
                 Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + numbers[0]));
                 startActivity(i);
-            }
+            }*/
         }
     };
 

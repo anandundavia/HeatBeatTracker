@@ -190,7 +190,8 @@ public class FirstTime extends Fragment
             Database.LOCALDB.insertContact(em2Name, em2ContactNumber);
             Database.LOCALDB.insertContact(docName, docContactNumber);
 
-            new Thread(new RandomDataGen(getActivity())).start();
+            //new Thread(new RandomDataGen(getActivity())).start();
+            getActivity().startService(new Intent(getActivity(), RandomGenService.class));
             FragmentManager fm = getActivity().getSupportFragmentManager();
             FragmentTransaction ftm = fm.beginTransaction();
             ftm.replace(R.id.container, new HomeFragment()).commit();
