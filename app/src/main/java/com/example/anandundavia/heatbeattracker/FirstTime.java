@@ -13,9 +13,9 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.system.Os;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +29,8 @@ public class FirstTime extends Fragment
     private static final int PICK_EM1 = 1;
     private static final int PICK_EM2 = 2;
     private static final int PICK_DOC = 3;
-    final private int REQUEST_CODE_ASK_PERMISSIONS_CONTACTS = 110;
     private static int x_global=1;
-
-
+    final private int REQUEST_CODE_ASK_PERMISSIONS_CONTACTS = 110;
     private View rootView;
 
     private Button em1Btn, em2Btn, docBtn, submitBtn;
@@ -104,6 +102,24 @@ public class FirstTime extends Fragment
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length == 1 && requestCode == REQUEST_CODE_ASK_PERMISSIONS_CONTACTS && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        {
+            MyContactPicker my = new MyContactPicker(x_global);
+            my.selectContact();
+
+        } else
+        {
+
+            Toast.makeText(getContext(), "Permissions Denied | Quitting", Toast.LENGTH_SHORT).show();
+            getActivity().finish();
+
+        }
+    }
+
     class MyContactPicker implements View.OnClickListener
     {
         int x;
@@ -143,22 +159,6 @@ public class FirstTime extends Fragment
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length == 1 && requestCode == REQUEST_CODE_ASK_PERMISSIONS_CONTACTS && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            MyContactPicker my = new MyContactPicker(x_global);
-            my.selectContact();
-
-        }
-        else{
-
-            Toast.makeText(getContext(), "Permissions Denied | Quitting", Toast.LENGTH_SHORT).show();
-            getActivity().finish();
-
-        }
-    }
-
     class SubmitHandler implements View.OnClickListener
     {
 
@@ -189,6 +189,11 @@ public class FirstTime extends Fragment
             Database.LOCALDB.insertContact(em1Name, em1ContactNumber);
             Database.LOCALDB.insertContact(em2Name, em2ContactNumber);
             Database.LOCALDB.insertContact(docName, docContactNumber);
+
+            new Thread(new RandomDataGen(getActivity())).start();
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            FragmentTransaction ftm = fm.beginTransaction();
+            ftm.replace(R.id.container, new HomeFragment()).commit();
 
         }
     }
